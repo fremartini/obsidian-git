@@ -32,22 +32,33 @@ export default class ObsidianGitPlugin extends Plugin {
 			}
 
 			try {
-				const changedFiles = execSync(`git status -s`, {cwd: vaultPath})
-					.toString()
+				const status = execSync(`git status -s`, {cwd: vaultPath}).toString()
+
+				if (!status) {
+					new Notice("No changed files found")
+					return
+				}
+
+				const changedFiles = status
 					.replaceAll("\"", "")
 					.replaceAll("??", "A") // files added are showns as ?? for some reason
 					.split("\n");
 
-				new PushModal(this.app, (commitMessage) => {
-					new Notice(`Initiating push with message '${commitMessage}'`)
+				const props = {
+					onSubmit: (commitMessage: string) => {
+						new Notice(`Initiating push with message '${commitMessage}'`)
 
-					try {
-						const output = execSync(`git add * && git commit -m "${commitMessage}" && git push`, {cwd: vaultPath}).toString();
-						new Notice(output);
-					} catch (err) {
-						new Notice(err)
-					}
-				}, changedFiles).open();
+						try {
+							const output = execSync(`git add * && git commit -m "${commitMessage}" && git push`, {cwd: vaultPath}).toString();
+							new Notice(output);
+						} catch (err) {
+							new Notice(err)
+						}
+					},
+					changedFiles: changedFiles
+				}
+
+				new PushModal(this.app, props).open();
 			} catch (err) {
 				new Notice(err)
 			}
@@ -73,36 +84,84 @@ export default class ObsidianGitPlugin extends Plugin {
 	}
 }
 
-export class PushModal extends Modal {
-  constructor(
-	app: App, 
+interface PushModalProps {
 	onSubmit: (result: string) => void,
-	changedFiles: string[]) {
-    super(app);
-	this.setTitle('Push changes');
+	changedFiles: string[]
+}
 
-	let message = '';
+export class PushModal extends Modal {
+	props: PushModalProps
 
-    new Setting(this.contentEl)
-		.setName("Commit message")
-		.addText((text) => {
-			text.onChange((value) => {
-				message = value;
-			})
-		});
+	constructor(
+		app: App,
+		props: PushModalProps
 
-	const changedFilesContainer = this.contentEl.createEl('div', { cls: "changedFilesContainer" });
-	changedFiles.forEach((changedFile) => changedFilesContainer.createEl('div', { text: changedFile }))
+	) {
+		super(app);
+		this.props = props
+	}
 
-    new Setting(this.contentEl)
-		.addButton((btn) =>
-			btn
-			.setButtonText('Push')
-			.setCta()
-			.onClick(() => {
-				this.close();
-				onSubmit(message);
-			}
-		));
+	onOpen() {
+		this.setTitle('Loading');
+
+		let message = '';
+
+		this.getRandomCommitMessage().then((commitMessage) =>  {
+			this.setTitle('Push changes')
+
+			new Setting(this.contentEl)
+				.setName("Commit message")
+				.addText((text) => {
+					if (commitMessage != null) {
+						text.setValue(commitMessage)
+						message = commitMessage
+					}
+
+					text.onChange((value) => {
+						message = value;
+					})
+				})
+
+				const changedFilesContainer = this.contentEl.createEl('div', { cls: "changedFilesContainer" });
+				this.props.changedFiles.forEach((changedFile) => changedFilesContainer.createEl('div', { text: changedFile }))
+
+				new Setting(this.contentEl)
+					.addButton((btn) =>
+						btn
+						.setButtonText('Push')
+						.setCta()
+						.onClick(() => {
+							if (message == '') {
+								return
+							}
+
+							this.close();
+							this.props.onSubmit(message);
+						}
+				));
+		})
+	}
+
+	onClose() {
+		const { contentEl } = this;
+		contentEl.empty();
+	}
+
+  async getRandomCommitMessage(): Promise<string | null> {
+	try {
+		const response = await fetch("https://whatthecommit.com")
+		const body = await response.text()
+
+		const regex = /<p>(.*?)<\/p>/;
+		const match = body.match(regex);
+
+		if (match && match[1]) {
+			return match[1];
+		} else {
+			return null
+		}
+	} catch (err) {
+		return null
+	}
   }
 }
