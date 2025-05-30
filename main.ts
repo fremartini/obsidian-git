@@ -1,7 +1,7 @@
 import { App, FileSystemAdapter, Modal, Notice, Plugin, Setting } from 'obsidian';
-import { exec } from 'child_process';
+import { execSync } from 'child_process';
 
-export default class HelloWorldPlugin extends Plugin {
+export default class ObsidianGitPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
@@ -15,13 +15,12 @@ export default class HelloWorldPlugin extends Plugin {
 				return
 			}
 
-			exec('git pull', {cwd: vaultPath}, (error, stdout, _) => {
-				if (error) {
-					new Notice(error.message)
-					return;
-				}
-				new Notice(stdout);
-			});
+			try {
+				const output = execSync('git pull', {cwd: vaultPath}).toString();
+				new Notice(output);
+			} catch (err) {
+				new Notice(err)
+			}
 		});
 
 		this.addRibbonIcon('arrow-up-from-line', 'Push', (evt: MouseEvent) => {
@@ -32,19 +31,26 @@ export default class HelloWorldPlugin extends Plugin {
 				return
 			}
 
-			new PushModal(this.app, (commitMessage) => {
-				new Notice(`Initiating push with message '${commitMessage}'`)
+			try {
+				const changedFiles = execSync(`git status -s`, {cwd: vaultPath})
+					.toString()
+					.replaceAll("\"", "")
+					.replaceAll("??", "A") // files added are showns as ?? for some reason
+					.split("\n");
 
-				exec('git add *', {cwd: vaultPath})
-				exec(`git commit -m "${commitMessage}"`, {cwd: vaultPath})
-				exec('git push', {cwd: vaultPath}, (error, stdout, _) => {
-					if (error) {
-						new Notice(error.message)
-						return;
+				new PushModal(this.app, (commitMessage) => {
+					new Notice(`Initiating push with message '${commitMessage}'`)
+
+					try {
+						const output = execSync(`git add * && git commit -m "${commitMessage}" && git push`, {cwd: vaultPath}).toString();
+						new Notice(output);
+					} catch (err) {
+						new Notice(err)
 					}
-					new Notice(`Pushed successful`);
-				});
-			}).open();
+				}, changedFiles).open();
+			} catch (err) {
+				new Notice(err)
+			}
 		});
 	}
 
@@ -68,26 +74,35 @@ export default class HelloWorldPlugin extends Plugin {
 }
 
 export class PushModal extends Modal {
-  constructor(app: App, onSubmit: (result: string) => void) {
+  constructor(
+	app: App, 
+	onSubmit: (result: string) => void,
+	changedFiles: string[]) {
     super(app);
-	this.setTitle('Enter commit message');
+	this.setTitle('Push changes');
 
 	let message = '';
 
     new Setting(this.contentEl)
-      .addText((text) =>
-        text.onChange((value) => {
-          message = value;
-        }));
+		.setName("Commit message")
+		.addText((text) => {
+			text.onChange((value) => {
+				message = value;
+			})
+		});
+
+	const changedFilesContainer = this.contentEl.createEl('div', { cls: "changedFilesContainer" });
+	changedFiles.forEach((changedFile) => changedFilesContainer.createEl('div', { text: changedFile }))
 
     new Setting(this.contentEl)
-      .addButton((btn) =>
-        btn
-          .setButtonText('Push')
-          .setCta()
-          .onClick(() => {
-            this.close();
-            onSubmit(message);
-          }));
+		.addButton((btn) =>
+			btn
+			.setButtonText('Push')
+			.setCta()
+			.onClick(() => {
+				this.close();
+				onSubmit(message);
+			}
+		));
   }
 }

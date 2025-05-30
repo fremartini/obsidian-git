@@ -44,7 +44,7 @@ jobs:
     - name: Create archive
       run: |
         mkdir ${{ env.OUT_FOLDER}}
-        mv -t ${{ env.OUT_FOLDER}} main.js manifest.json
+        mv -t ${{ env.OUT_FOLDER}} main.js manifest.json styles.css
         zip -r ${{ env.OUT_FOLDER}}.zip ${{ env.OUT_FOLDER}}
       shell: bash
 
