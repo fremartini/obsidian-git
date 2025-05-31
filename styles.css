@@ -1,4 +1,8 @@
 .changedFilesContainer {
-  border: 1px solid var(--background-modifier-border);
-  padding: 10px;
+  	border: 1px solid var(--background-modifier-border);
+  	padding: 10px;
+}
+
+.branchContainer {
+	padding-bottom: 10px;
 }

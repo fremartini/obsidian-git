@@ -44,6 +44,8 @@ export default class ObsidianGitPlugin extends Plugin {
 					.replaceAll("??", "A") // files added are showns as ?? for some reason
 					.split("\n");
 
+				const branch = execSync(`git branch --show-current`, {cwd: vaultPath}).toString()
+
 				const props = {
 					onSubmit: (commitMessage: string) => {
 						new Notice(`Initiating push with message '${commitMessage}'`)
@@ -55,7 +57,8 @@ export default class ObsidianGitPlugin extends Plugin {
 							new Notice(err)
 						}
 					},
-					changedFiles: changedFiles
+					changedFiles: changedFiles,
+					branch: branch
 				}
 
 				new PushModal(this.app, props).open();
@@ -87,6 +90,7 @@ export default class ObsidianGitPlugin extends Plugin {
 interface PushModalProps {
 	onSubmit: (result: string) => void,
 	changedFiles: string[]
+	branch: string
 }
 
 export class PushModal extends Modal {
@@ -122,23 +126,26 @@ export class PushModal extends Modal {
 					})
 				})
 
-				const changedFilesContainer = this.contentEl.createEl('div', { cls: "changedFilesContainer" });
-				this.props.changedFiles.forEach((changedFile) => changedFilesContainer.createEl('div', { text: changedFile }))
+			const branchContainer = this.contentEl.createDiv({ cls: "branchContainer" });
+			branchContainer.createDiv({text: `Branch: ${this.props.branch}`});
 
-				new Setting(this.contentEl)
-					.addButton((btn) =>
-						btn
-						.setButtonText('Push')
-						.setCta()
-						.onClick(() => {
-							if (message == '') {
-								return
-							}
+			const changedFilesContainer = this.contentEl.createDiv({ cls: "changedFilesContainer" });
+			this.props.changedFiles.forEach((changedFile) => changedFilesContainer.createDiv({ text: changedFile }));
 
-							this.close();
-							this.props.onSubmit(message);
+			new Setting(this.contentEl)
+				.addButton((btn) =>
+					btn
+					.setButtonText('Push')
+					.setCta()
+					.onClick(() => {
+						if (message == '') {
+							return
 						}
-				));
+
+						this.close();
+						this.props.onSubmit(message);
+					}
+			));
 		})
 	}
 
