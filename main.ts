@@ -1,80 +1,82 @@
 import { App, FileSystemAdapter, Modal, Notice, Plugin, Setting } from 'obsidian';
-import { execSync } from 'child_process';
+import { exec as ex } from 'child_process';
+import * as util from 'util'
+
+const exec = util.promisify(ex);
 
 export default class ObsidianGitPlugin extends Plugin {
 	async onload() {
-		await this.loadSettings();
+		this.addRibbonIcon('arrow-down-to-line', 'Pull', (evt: MouseEvent) => this.pull());
 
-		this.addRibbonIcon('arrow-down-to-line', 'Pull', (evt: MouseEvent) => {
-			new Notice("Initiating pull")
-
-			const vaultPath = this.getVaultAbsolutePath()
-
-			if (vaultPath == null) {
-				new Notice("Failed to get vault directory");
-				return
-			}
-
-			try {
-				const output = execSync('git pull', {cwd: vaultPath}).toString();
-				new Notice(output);
-			} catch (err) {
-				new Notice(err)
-			}
-		});
-
-		this.addRibbonIcon('arrow-up-from-line', 'Push', (evt: MouseEvent) => {
-			const vaultPath = this.getVaultAbsolutePath()
-
-			if (vaultPath == null) {
-				new Notice("Failed to get vault directory");
-				return
-			}
-
-			try {
-				const status = execSync(`git status -s`, {cwd: vaultPath}).toString()
-
-				if (!status) {
-					new Notice("No changed files found")
-					return
-				}
-
-				const changedFiles = status
-					.replaceAll("\"", "")
-					.replaceAll("??", "A") // files added are showns as ?? for some reason
-					.split("\n");
-
-				const branch = execSync(`git branch --show-current`, {cwd: vaultPath}).toString()
-
-				const props = {
-					onSubmit: (commitMessage: string) => {
-						new Notice(`Initiating push with message '${commitMessage}'`)
-
-						try {
-							const output = execSync(`git add * && git commit -m "${commitMessage}" && git push`, {cwd: vaultPath}).toString();
-							new Notice(output);
-						} catch (err) {
-							new Notice(err)
-						}
-					},
-					changedFiles: changedFiles,
-					branch: branch
-				}
-
-				new PushModal(this.app, props).open();
-			} catch (err) {
-				new Notice(err)
-			}
-		});
+		this.addRibbonIcon('arrow-up-from-line', 'Push', (evt: MouseEvent) => this.push());
 	}
 
-	onunload() {
+	async pull() {
+		new Notice("Initiating pull")
+
+		const vaultPath = this.getVaultAbsolutePath()
+
+		if (vaultPath == null) {
+			new Notice("Failed to get vault directory");
+			return
+		}
+
+		const { stdout } = await exec('git pull', {cwd: vaultPath})
+
+		new Notice(stdout)
 	}
 
-	async loadSettings() {
+	async push() {
+		const vaultPath = this.getVaultAbsolutePath()
+
+		if (vaultPath == null) {
+			new Notice("Failed to get vault directory");
+			return
+		}
+
+		const changedFiles = await this.getChangedFiles(vaultPath)
+
+		if (changedFiles.length == 0) {
+			new Notice("No changed files found")
+			return
+		}
+
+		const branch = await this.getBranch(vaultPath)		
+
+		const props = {
+			onSubmit: async (commitMessage: string) => {
+				new Notice(`Initiating push with message '${commitMessage}'`)
+
+				const { stdout } = await exec(`git add * && git commit -m "${commitMessage}" && git push`, {cwd: vaultPath})
+				new Notice(stdout);
+		
+			},
+			changedFiles: changedFiles,
+			branch: branch
+		}
+
+		new PushModal(this.app, props).open();
 	}
 
-	async saveSettings() {
+	async getBranch(vaultPath: string): Promise<string> {
+		const { stdout } = await exec(`git branch --show-current`, {cwd: vaultPath})
+
+		return stdout
+	}
+
+	async getChangedFiles(vaultPath: string): Promise<string[]> {
+		const { stdout } = await exec(`git status -s`, {cwd: vaultPath})
+
+		if (!stdout) {
+			return []
+		}
+
+		const changedFiles = stdout
+			.replaceAll("\"", "")
+			.replaceAll("??", "A") // files added are showns as ?? for some reason
+			.split("\n");
+
+		return changedFiles
 	}
 
 	getVaultAbsolutePath(): string | null {
@@ -84,6 +86,15 @@ export default class ObsidianGitPlugin extends Plugin {
 		}
 
 		return null
+	}
+	
+	onunload() {
+	}
+
+	async loadSettings() {
+	}
+
+	async saveSettings() {
 	}
 }
 
@@ -106,7 +117,7 @@ export class PushModal extends Modal {
 	}
 
 	onOpen() {
-		this.setTitle('Loading');
+		this.setTitle('Loading...');
 
 		let message = '';
 
@@ -164,9 +175,9 @@ export class PushModal extends Modal {
 
 		if (match && match[1]) {
 			return match[1];
-		} else {
-			return null
 		}
+
+		return null
 	} catch (err) {
 		return null
 	}
