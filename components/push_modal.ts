@@ -1,5 +1,9 @@
 import { App, Modal, Setting } from 'obsidian';
 
+import Counter from '../Counter.svelte';
+import { mount, unmount } from 'svelte';
+
+
 interface PushModalProps {
 	onSubmit: (result: string) => void,
 	changedFiles: string[]
@@ -7,6 +11,9 @@ interface PushModalProps {
 }
 
 export class PushModal extends Modal {
+  // A variable to hold on to the Counter instance mounted in this ItemView.
+  counter: ReturnType<typeof Counter> | undefined;
+
 	props: PushModalProps
 
 	constructor(
@@ -18,7 +25,19 @@ export class PushModal extends Modal {
 		this.props = props
 	}
 
-	onOpen() {
+
+	async onOpen() {
+    // Attach the Svelte component to the ItemViews content element and provide the needed props.
+    this.counter = mount(Counter, {
+      target: this.contentEl,
+      props: {
+        startCount: 5,
+      }
+    });
+
+    // Since the component instance is typed, the exported `increment` method is known to TypeScript.
+    this.counter.increment();
+
 		this.setTitle('Loading...');
 
 		let message = '';
@@ -63,6 +82,11 @@ export class PushModal extends Modal {
 	}
 
 	onClose() {
+    if (this.counter) {
+      // Remove the Counter from the ItemView.
+      unmount(this.counter);
+    }
+
 		const { contentEl } = this;
 		contentEl.empty();
 	}

@@ -17,9 +17,12 @@
       "ES6",
       "ES7",
 	  "ES2021.String"
-    ]
+    ],
+	"verbatimModuleSyntax": true,
+    "skipLibCheck": true,
   },
   "include": [
-    "**/*.ts"
+    "**/*.ts",
+	"**/*.svelte"
   ]
 }
