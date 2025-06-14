@@ -1,83 +1,91 @@
-import { FileSystemAdapter, Notice, Plugin } from 'obsidian';
-import { exec as ex } from 'child_process';
-import * as util from 'util'
-import { PushModal } from 'components/push_modal';
+import { FileSystemAdapter, Notice, Plugin } from "obsidian";
+import { exec as ex } from "child_process";
+import * as util from "util";
+import { PushModal } from "components/push_modal";
 
 const exec = util.promisify(ex);
 
 export default class ObsidianGitPlugin extends Plugin {
 	async onload() {
-		this.addRibbonIcon('arrow-down-to-line', 'Pull', (evt: MouseEvent) => this.pull());
+		this.addRibbonIcon("arrow-down-to-line", "Pull", (evt: MouseEvent) =>
+			this.pull(),
+		);
 
-		this.addRibbonIcon('arrow-up-from-line', 'Push', (evt: MouseEvent) => this.push());
+		this.addRibbonIcon("arrow-up-from-line", "Push", (evt: MouseEvent) =>
+			this.push(),
+		);
 	}
 
 	async pull() {
-		new Notice("Initiating pull")
+		new Notice("Initiating pull");
 
-		const vaultPath = this.getVaultAbsolutePath()
+		const vaultPath = this.getVaultAbsolutePath();
 
 		if (vaultPath == null) {
 			new Notice("Failed to get vault directory");
-			return
+			return;
 		}
 
-		const { stdout } = await exec('git pull', {cwd: vaultPath})
+		const { stdout } = await exec("git pull", { cwd: vaultPath });
 
-		new Notice(stdout)
+		new Notice(stdout);
 	}
 
 	async push() {
-		const vaultPath = this.getVaultAbsolutePath()
+		const vaultPath = this.getVaultAbsolutePath();
 
 		if (vaultPath == null) {
 			new Notice("Failed to get vault directory");
-			return
+			return;
 		}
 
-		const changedFiles = await this.getChangedFiles(vaultPath)
+		const changedFiles = await this.getChangedFiles(vaultPath);
 
 		if (changedFiles.length == 0) {
-			new Notice("No changed files found")
-			return
+			new Notice("No changed files found");
+			return;
 		}
 
-		const branch = await this.getBranch(vaultPath)		
+		const branch = await this.getBranch(vaultPath);
 
 		const props = {
 			onSubmit: async (commitMessage: string) => {
-				new Notice(`Initiating push with message '${commitMessage}'`)
+				new Notice(`Initiating push with message '${commitMessage}'`);
 
-				const { stdout } = await exec(`git add * && git commit -m "${commitMessage}" && git push`, {cwd: vaultPath})
+				const { stdout } = await exec(
+					`git add * && git commit -m "${commitMessage}" && git push`,
+					{ cwd: vaultPath },
+				);
 				new Notice(stdout);
-		
 			},
 			changedFiles: changedFiles,
-			branch: branch
-		}
+			branch: branch,
+		};
 
 		new PushModal(this.app, props).open();
 	}
 
 	async getBranch(vaultPath: string): Promise<string> {
-		const { stdout } = await exec(`git branch --show-current`, {cwd: vaultPath})
+		const { stdout } = await exec(`git branch --show-current`, {
+			cwd: vaultPath,
+		});
 
-		return stdout
+		return stdout;
 	}
 
 	async getChangedFiles(vaultPath: string): Promise<string[]> {
-		const { stdout } = await exec(`git status -s`, {cwd: vaultPath})
+		const { stdout } = await exec(`git status -s`, { cwd: vaultPath });
 
 		if (!stdout) {
-			return []
+			return [];
 		}
 
 		const changedFiles = stdout
-			.replaceAll("\"", "")
+			.replaceAll('"', "")
 			.replaceAll("??", "A") // files added are showns as ?? for some reason
 			.split("\n");
 
-		return changedFiles
+		return changedFiles;
 	}
 
 	getVaultAbsolutePath(): string | null {
@@ -86,15 +94,12 @@ export default class ObsidianGitPlugin extends Plugin {
 			return adapter.getBasePath();
 		}
 
-		return null
-	}
-	
-	onunload() {
+		return null;
 	}
 
-	async loadSettings() {
-	}
+	onunload() {}
 
-	async saveSettings() {
-	}
+	async loadSettings() {}
+
+	async saveSettings() {}
 }
