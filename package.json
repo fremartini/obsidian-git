@@ -23,6 +23,7 @@
 		"obsidian": "latest",
 		"svelte-check": "^4.2.1",
 		"svelte-preprocess": "^6.0.3",
+		"prettier": "3.5.3",
 		"tslib": "2.8.1",
 		"typescript": "^5.8.3"
 	}
