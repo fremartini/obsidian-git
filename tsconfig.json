@@ -11,7 +11,8 @@
 		"importHelpers": true,
 		"isolatedModules": true,
 		"strictNullChecks": true,
-		"lib": ["DOM", "ES5", "ES6", "ES7", "ES2021.String"]
+		"lib": ["DOM", "ES5", "ES6", "ES7", "ES2021.String"],
+		"verbatimModuleSyntax": true
 	},
 	"include": ["**/*.ts", "**/*.svelte"]
 }
