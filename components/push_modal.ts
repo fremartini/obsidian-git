@@ -1,6 +1,6 @@
 import { App, Modal } from "obsidian";
 
-import Counter from "./PushModal.svelte";
+import PushModalRoot from "./PushModalRoot.svelte";
 import { mount, unmount } from "svelte";
 
 interface PushModalProps {
@@ -10,7 +10,7 @@ interface PushModalProps {
 }
 
 export class PushModal extends Modal {
-	counter: ReturnType<typeof Counter> | undefined;
+	component: ReturnType<typeof PushModalRoot> | undefined;
 
 	props: PushModalProps;
 
@@ -20,7 +20,7 @@ export class PushModal extends Modal {
 	}
 
 	async onOpen() {
-		this.counter = mount(Counter, {
+		this.component = mount(PushModalRoot, {
 			target: this.contentEl,
 			props: {
 				changedFiles: this.props.changedFiles,
@@ -36,8 +36,8 @@ export class PushModal extends Modal {
 	}
 
 	onClose() {
-		if (this.counter) {
-			unmount(this.counter);
+		if (this.component) {
+			unmount(this.component);
 		}
 	}
 }
