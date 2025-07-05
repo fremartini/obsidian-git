@@ -1,4 +1,7 @@
-import { App, Modal, Setting } from "obsidian";
+import { App, Modal } from "obsidian";
+
+import PushModalRoot from "./PushModalRoot.svelte";
+import { mount, unmount } from "svelte";
 
 interface PushModalProps {
 	onSubmit: (result: string) => void;
@@ -7,6 +10,8 @@ interface PushModalProps {
 }
 
 export class PushModal extends Modal {
+	component: ReturnType<typeof PushModalRoot> | undefined;
+
 	props: PushModalProps;
 
 	constructor(app: App, props: PushModalProps) {
@@ -14,75 +19,25 @@ export class PushModal extends Modal {
 		this.props = props;
 	}
 
-	onOpen() {
-		this.setTitle("Loading...");
+	async onOpen() {
+		this.component = mount(PushModalRoot, {
+			target: this.contentEl,
+			props: {
+				changedFiles: this.props.changedFiles,
+				branch: this.props.branch,
+				onSubmit: (r: string) => {
+					this.props.onSubmit(r);
 
-		let message = "";
-
-		this.getRandomCommitMessage().then((commitMessage) => {
-			this.setTitle("Push changes");
-
-			new Setting(this.contentEl)
-				.setName("Commit message")
-				.addText((text) => {
-					if (commitMessage != null) {
-						text.setValue(commitMessage);
-						message = commitMessage;
-					}
-
-					text.onChange((value) => {
-						message = value;
-					});
-				});
-
-			const branchContainer = this.contentEl.createDiv({
-				cls: "branchContainer",
-			});
-			branchContainer.createDiv({ text: `Branch: ${this.props.branch}` });
-
-			const changedFilesContainer = this.contentEl.createDiv({
-				cls: "changedFilesContainer",
-			});
-			this.props.changedFiles.forEach((changedFile) =>
-				changedFilesContainer.createDiv({ text: changedFile }),
-			);
-
-			new Setting(this.contentEl).addButton((btn) =>
-				btn
-					.setButtonText("Push")
-					.setCta()
-					.onClick(() => {
-						if (message == "") {
-							return;
-						}
-
-						this.close();
-						this.props.onSubmit(message);
-					}),
-			);
+					// ensure the windows is closed after the submit function is called
+					this.close();
+				},
+			},
 		});
 	}
 
 	onClose() {
-		const { contentEl } = this;
-		contentEl.empty();
-	}
-
-	async getRandomCommitMessage(): Promise<string | null> {
-		try {
-			const response = await fetch("https://whatthecommit.com");
-			const body = await response.text();
-
-			const regex = /<p>(.*?)<\/p>/;
-			const match = body.match(regex);
-
-			if (match && match[1]) {
-				return match[1];
-			}
-
-			return null;
-		} catch (err) {
-			return null;
+		if (this.component) {
+			unmount(this.component);
 		}
 	}
 }
