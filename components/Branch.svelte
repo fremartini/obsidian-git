@@ -8,12 +8,9 @@
 	}: Props = $props();
 </script>
 
-<div class="branchContainer">
+<div>
 	Branch: {branch}
 </div>
 
 <style>
-	.branchContainer {
-		padding-bottom: 10px;
-	}
 </style>

@@ -1,24 +1,11 @@
 <script lang="ts">
-	let commitMessage = $state(getRandomCommitMessage())
-
-	async function getRandomCommitMessage() : Promise<string | null> {
-		try {
-			await sleep(2000);
-			const response = await fetch("https://whatthecommit.com");
-			const body = await response.text();
-
-			const regex = /<p>(.*?)<\/p>/;
-			const match = body.match(regex);
-
-			if (match && match[1]) {
-				return match[1];
-			}
-
-			return null;
-		} catch (err) {
-			return null;
-		}	
+	interface Props {
+		commitMessage: Promise<string>;
 	}
+
+	let {
+		commitMessage,
+	}: Props = $props();
 </script>
 
 <div class="container">
@@ -34,9 +21,15 @@
 <style>
 	.container {
 		display: flex;
-		justify-content: space-between;
+		gap: var(--size-2-1);
+		align-items: center;
 	}
 	input {
 		resize: none;
+		border: var(--border-width) solid var(--background-modifier-border);
+		color: var(--text-normal);
+		border-radius: var(--radius-s);
+		padding: var(--size-4-2);
+		flex-grow: 3;
 	}
 </style>

@@ -22,7 +22,16 @@ export class PushModal extends Modal {
 	async onOpen() {
 		this.counter = mount(Counter, {
 			target: this.contentEl,
-			props: this.props,
+			props: {
+				changedFiles: this.props.changedFiles,
+				branch: this.props.branch,
+				onSubmit: (r: string) => {
+					this.props.onSubmit(r);
+
+					// ensure the windows is closed after the submit function is called
+					this.close();
+				},
+			},
 		});
 	}
 

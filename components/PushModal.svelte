@@ -15,11 +15,40 @@
 		onSubmit,
 		changedFiles
 	}: Props = $props();
+
+	let commitMessage = $state(getRandomCommitMessage())
+
+	async function getRandomCommitMessage() : Promise<string> {
+		try {
+			const response = await fetch("https://whatthecommit.com");
+			const body = await response.text();
+
+			const regex = /<p>(.*?)<\/p>/;
+			const match = body.match(regex);
+
+			if (match && match[1]) {
+				return match[1];
+			}
+
+			return "";
+		} catch (err) {
+			return err;
+		}
+	}
 </script>
 
-<div>
-	<CommitMessage/>
+<div class="container">
+	<CommitMessage {commitMessage}/>
 	<Branch {branch}/>
 	<ChangedFiles {changedFiles}/>
-	<PushButton {onSubmit}/>
+	<PushButton {onSubmit} {commitMessage}/>
 </div>
+
+<style>
+	.container {
+		margin: var(--size-4-2);
+		display: flex;
+		flex-direction: column;
+       	gap: var(--size-4-2);
+	}
+</style>

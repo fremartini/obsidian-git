@@ -8,15 +8,15 @@
 	} : Props = $props();
 </script>
 
-<div class="changedFilesContainer">
+<div class="container">
 	{#each changedFiles as changedFile} 
 		<div>{changedFile}</div>
 	{/each}
 </div>
 
 <style>
-	.changedFilesContainer {
-		border: 1px solid var(--background-modifier-border);
-		padding: 10px;
+	.container {
+		border: var(--border-width) solid var(--background-modifier-border);
+		padding: var(--size-4-2);
 	}
 </style>
