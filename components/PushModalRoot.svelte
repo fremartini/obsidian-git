@@ -20,6 +20,7 @@
 
 	async function getRandomCommitMessage() : Promise<string> {
 		try {
+			await sleep(5000);
 			const response = await fetch("https://whatthecommit.com");
 			const body = await response.text();
 

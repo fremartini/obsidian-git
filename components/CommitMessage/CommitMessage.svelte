@@ -1,6 +1,6 @@
 <script lang="ts">
 	import LoadingIndicator from "./LoadingIndicator.svelte";
-	import ReloadIcon from "./ReloadIcon.svelte";
+	import ReloadIcon from "./ReloadButton.svelte";
 
 	interface Props {
 		commitMessage: Promise<string>;
@@ -19,14 +19,10 @@
 			<LoadingIndicator/>
 		{:then msg}
 			<input value={msg}/>
-			<button onclick={refresh}>
-				<ReloadIcon/>
-			</button>
+			<ReloadIcon onClick={refresh}/>
 		{:catch err}
 			<input value={err} disabled={true}/>
-			<button disabled={true}>
-				<ReloadIcon/>
-			</button>
+			<ReloadIcon/>
 		{/await}
 	</div>
 <style>
@@ -42,8 +38,5 @@
 		border-radius: var(--radius-s);
 		padding: var(--size-4-2);
 		flex-grow: 3;
-	}
-	button {
-		background: none;
 	}
 </style>

@@ -1,24 +1,34 @@
 <script lang="ts"></script>
 
-<div class="container">
-	<div class="loader"></div>
-</div>
-
+<div class="loader"></div>
+	
 <style>
-	.container {
-		background-color: red;
-	}
 	.loader {
-		width: 130px;
-		height:100%;
-		--c:no-repeat linear-gradient(#6100ee 0 0);
-		background: var(--c),var(--c),#d7b8fc;
-		background-size: 60% 100%;
-		animation: l16 3s infinite;
-	}
-	@keyframes l16 {
-		0%   {background-position:-150% 0,-150% 0}
-		66%  {background-position: 250% 0,-150% 0}
-		100% {background-position: 250% 0, 250% 0}
-	}
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      position: relative;
+      animation: rotate 1s linear infinite
+    }
+    .loader::before {
+      content: "";
+      box-sizing: border-box;
+      position: absolute;
+      inset: 0px;
+      border-radius: 50%;
+      border: 2px solid #FFF;
+      animation: prixClipFix 2s linear infinite ;
+    }
+
+    @keyframes rotate {
+      100%   {transform: rotate(360deg)}
+    }
+
+    @keyframes prixClipFix {
+        0%   {clip-path:polygon(50% 50%,0 0,0 0,0 0,0 0,0 0)}
+        25%  {clip-path:polygon(50% 50%,0 0,100% 0,100% 0,100% 0,100% 0)}
+        50%  {clip-path:polygon(50% 50%,0 0,100% 0,100% 100%,100% 100%,100% 100%)}
+        75%  {clip-path:polygon(50% 50%,0 0,100% 0,100% 100%,0 100%,0 100%)}
+        100% {clip-path:polygon(50% 50%,0 0,100% 0,100% 100%,0 100%,0 0)}
+    }
 </style>
