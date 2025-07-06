@@ -1,4 +1,5 @@
 <script lang="ts">
+	import LoadingIndicator from "./LoadingIndicator.svelte";
 	import ReloadIcon from "./ReloadIcon.svelte";
 
 	interface Props {
@@ -15,10 +16,7 @@
 <div class="container">
 		<p style="margin: 0em 2em 0em 0em;">Commit message</p>
 		{#await commitMessage}
-			<input value={"Loading..."} disabled={true}/>
-			<button disabled={true}>
-				<ReloadIcon/>
-			</button>
+			<LoadingIndicator/>
 		{:then msg}
 			<input value={msg}/>
 			<button onclick={refresh}>
