@@ -14,9 +14,11 @@
 </script>
 
 <div class="container">
-		<p style="margin: 0em 2em 0em 0em;">Commit message</p>
+	<p>Commit message</p>
+	<div class="commit">
 		{#await commitMessage}
 			<LoadingIndicator/>
+			<ReloadIcon/>
 		{:then msg}
 			<input value={msg}/>
 			<ReloadIcon onClick={refresh}/>
@@ -25,11 +27,22 @@
 			<ReloadIcon/>
 		{/await}
 	</div>
+</div>
+
 <style>
+	p {
+		margin: 0em 2em 0em 0em;
+	}
 	.container {
 		display: flex;
 		gap: var(--size-2-1);
 		align-items: center;
+		justify-content: space-between;
+	}
+	.commit {
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
 	}
 	input {
 		resize: none;
@@ -37,6 +50,5 @@
 		color: var(--text-normal);
 		border-radius: var(--radius-s);
 		padding: var(--size-4-2);
-		flex-grow: 3;
 	}
 </style>
