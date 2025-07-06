@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Branch from "./Branch.svelte";
 	import ChangedFiles from "./ChangedFiles.svelte";
-	import CommitMessage from "./CommitMessage.svelte";
+	import CommitMessage from "./CommitMessage/CommitMessage.svelte";
 	import PushButton from "./PushButton.svelte";
 
 	interface Props {
@@ -38,7 +38,7 @@
 </script>
 
 <div class="container">
-	<CommitMessage {commitMessage}/>
+	<CommitMessage {commitMessage} refresh={() => commitMessage = getRandomCommitMessage()}/>
 	<Branch {branch}/>
 	<ChangedFiles {changedFiles}/>
 	<PushButton {onSubmit} {commitMessage}/>
