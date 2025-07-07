@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ReloadIcon from "./ReloadIcon.svelte";
+	import ReloadIcon from "./ReloadButton.svelte";
 
 	interface Props {
 		commitMessage: Promise<string>;
@@ -13,29 +13,35 @@
 </script>
 
 <div class="container">
-		<p style="margin: 0em 2em 0em 0em;">Commit message</p>
+	<p>Commit message</p>
+	<div class="commit">
 		{#await commitMessage}
-			<input value={"Loading..."} disabled={true}/>
-			<button disabled={true}>
-				<ReloadIcon/>
-			</button>
+			<input disabled={true}/>
+			<ReloadIcon/>
 		{:then msg}
 			<input value={msg}/>
-			<button onclick={refresh}>
-				<ReloadIcon/>
-			</button>
+			<ReloadIcon onClick={refresh}/>
 		{:catch err}
 			<input value={err} disabled={true}/>
-			<button disabled={true}>
-				<ReloadIcon/>
-			</button>
+			<ReloadIcon/>
 		{/await}
 	</div>
+</div>
+
 <style>
+	p {
+		margin: 0em 2em 0em 0em;
+	}
 	.container {
 		display: flex;
 		gap: var(--size-2-1);
 		align-items: center;
+		justify-content: space-between;
+	}
+	.commit {
+		display: flex;
+		align-items: stretch;
+		justify-content: flex-end;
 	}
 	input {
 		resize: none;
@@ -43,9 +49,5 @@
 		color: var(--text-normal);
 		border-radius: var(--radius-s);
 		padding: var(--size-4-2);
-		flex-grow: 3;
-	}
-	button {
-		background: none;
 	}
 </style>
