@@ -1,5 +1,4 @@
 <script lang="ts">
-	import LoadingIndicator from "./LoadingIndicator.svelte";
 	import ReloadIcon from "./ReloadButton.svelte";
 
 	interface Props {
@@ -17,7 +16,7 @@
 	<p>Commit message</p>
 	<div class="commit">
 		{#await commitMessage}
-			<LoadingIndicator/>
+			<input disabled={true}/>
 			<ReloadIcon/>
 		{:then msg}
 			<input value={msg}/>
@@ -41,7 +40,7 @@
 	}
 	.commit {
 		display: flex;
-		align-items: center;
+		align-items: stretch;
 		justify-content: flex-end;
 	}
 	input {
