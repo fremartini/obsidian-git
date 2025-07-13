@@ -1,13 +1,14 @@
 <script lang="ts">
-	import Branch from "./Branch.svelte";
-	import ChangedFiles from "./ChangedFiles.svelte";
+	import Branch from "./Branch/Branch.svelte";
+	import type ChangedFile from "./ChangedFile";
+	import ChangedFiles from "./ChangedFiles/ChangedFiles.svelte";
 	import CommitMessage from "./CommitMessage/CommitMessage.svelte";
-	import PushButton from "./PushButton.svelte";
+	import PushButton from "./Push/PushButton.svelte";
 
 	interface Props {
 		branch: string;
-		onSubmit: (arg0: string) => void;
-		changedFiles: string[]
+		onSubmit: (arg0: string, arg1: ChangedFile[]) => void;
+		changedFiles: ChangedFile[]
 	}
 
 	let {
@@ -17,6 +18,7 @@
 	}: Props = $props();
 
 	let commitMessage = $state(getRandomCommitMessage())
+	let filesToPush = $state(changedFiles)
 
 	async function getRandomCommitMessage() : Promise<string> {
 		try {
@@ -40,8 +42,8 @@
 <div class="container">
 	<CommitMessage {commitMessage} refresh={() => commitMessage = getRandomCommitMessage()}/>
 	<Branch {branch}/>
-	<ChangedFiles {changedFiles}/>
-	<PushButton {onSubmit} {commitMessage}/>
+	<ChangedFiles {changedFiles} {filesToPush}/>
+	<PushButton {onSubmit} {commitMessage} {filesToPush}/>
 </div>
 
 <style>
