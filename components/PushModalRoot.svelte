@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Branch from "./Branch.svelte";
-	import ChangedFiles from "./ChangedFiles.svelte";
+	import ChangedFiles from "./ChangedFiles/ChangedFiles.svelte";
 	import CommitMessage from "./CommitMessage/CommitMessage.svelte";
 	import PushButton from "./PushButton.svelte";
 

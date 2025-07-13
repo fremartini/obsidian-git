@@ -85,6 +85,8 @@ export default class ObsidianGitPlugin extends Plugin {
 			.replaceAll("??", "A") // files added are showns as ?? for some reason
 			.split("\n");
 
+		changedFiles.pop(); // last element is an empty string
+
 		return changedFiles;
 	}
 

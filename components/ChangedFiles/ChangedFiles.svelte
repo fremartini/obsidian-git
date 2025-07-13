@@ -3,6 +3,8 @@
 		changedFiles: string[]
 	}
 
+	let yes = $state(true)
+
 	let {
 		changedFiles
 	} : Props = $props();
@@ -10,7 +12,10 @@
 
 <div class="container">
 	{#each changedFiles as changedFile} 
-		<div>{changedFile}</div>
+		<div class="entry">
+			{changedFile}
+			<input type="checkbox" bind:checked={yes} />
+		</div>
 	{/each}
 </div>
 
@@ -18,5 +23,11 @@
 	.container {
 		border: var(--border-width) solid var(--background-modifier-border);
 		padding: var(--size-4-2);
+	}
+	.entry {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
 	}
 </style>
