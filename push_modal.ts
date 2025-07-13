@@ -2,10 +2,11 @@ import { App, Modal } from "obsidian";
 
 import PushModalRoot from "./components/ModalRoot.svelte";
 import { mount, unmount } from "svelte";
+import type ChangedFile from "./components/ChangedFile";
 
 interface PushModalProps {
-	onSubmit: (result: string, filesToPush: string[]) => void;
-	changedFiles: string[];
+	onSubmit: (result: string, filesToPush: ChangedFile[]) => void;
+	changedFiles: ChangedFile[];
 	branch: string;
 }
 
@@ -25,8 +26,11 @@ export class PushModal extends Modal {
 			props: {
 				changedFiles: this.props.changedFiles,
 				branch: this.props.branch,
-				onSubmit: (r: string, filesToPush: string[]) => {
-					this.props.onSubmit(r, filesToPush);
+				onSubmit: (
+					commitMessage: string,
+					filesToPush: ChangedFile[],
+				) => {
+					this.props.onSubmit(commitMessage, filesToPush);
 
 					// ensure the windows is closed after the submit function is called
 					this.close();

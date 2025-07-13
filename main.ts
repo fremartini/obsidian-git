@@ -2,6 +2,7 @@ import { FileSystemAdapter, Notice, Plugin } from "obsidian";
 import { exec as ex } from "child_process";
 import * as util from "util";
 import { PushModal } from "push_modal";
+import type ChangedFile from "components/ChangedFile";
 
 const exec = util.promisify(ex);
 
@@ -49,25 +50,48 @@ export default class ObsidianGitPlugin extends Plugin {
 		const branch = await this.getBranch(vaultPath);
 
 		const props = {
-			onSubmit: async (commitMessage: string, filesToPush: string[]) => {
+			onSubmit: async (
+				commitMessage: string,
+				filesToPush: ChangedFile[],
+			) => {
 				new Notice(`Initiating push with message '${commitMessage}'`);
 
-				for (var changedFile in filesToPush) {
-					new Notice(filesToPush[changedFile]);
-					//await exec(`git add ${changedFile}`);
-				}
-				/*
-				const { stdout } = await exec(
-					`git commit -m "${commitMessage}" && git push`,
-					{ cwd: vaultPath },
-				);
-				new Notice(stdout);*/
+				await this.addFiles(filesToPush, vaultPath);
+
+				await this.commitAndPushFiles(commitMessage, vaultPath);
 			},
 			changedFiles: changedFiles,
 			branch: branch,
 		};
 
 		new PushModal(this.app, props).open();
+	}
+
+	async addFiles(files: ChangedFile[], vaultPath: string) {
+		for (var idx in files) {
+			let fileName = files[idx].Filename;
+
+			try {
+				await exec(`git add ${fileName}`, {
+					cwd: vaultPath,
+				});
+			} catch (err) {
+				new Notice(err);
+				return;
+			}
+		}
+	}
+
+	async commitAndPushFiles(commitMessage: string, vaultPath: string) {
+		try {
+			const { stdout } = await exec(
+				`git commit -m "${commitMessage}" && git push`,
+				{ cwd: vaultPath },
+			);
+			new Notice(stdout);
+		} catch (err) {
+			new Notice(err);
+		}
 	}
 
 	async getBranch(vaultPath: string): Promise<string> {
@@ -78,7 +102,7 @@ export default class ObsidianGitPlugin extends Plugin {
 		return stdout;
 	}
 
-	async getChangedFiles(vaultPath: string): Promise<string[]> {
+	async getChangedFiles(vaultPath: string): Promise<ChangedFile[]> {
 		const { stdout } = await exec(`git status -s`, { cwd: vaultPath });
 
 		if (!stdout) {
@@ -91,7 +115,22 @@ export default class ObsidianGitPlugin extends Plugin {
 
 		changedFiles.pop(); // last element is an empty string
 
-		return changedFiles;
+		const models = changedFiles.map((f) => {
+			// <state> <filename>
+			const split = f.trim().split(" ");
+
+			const state = split.shift();
+			const filename = split.join(" ");
+			const displayName = filename.replaceAll('"', "");
+
+			return <ChangedFile>{
+				State: state,
+				Displayname: displayName,
+				Filename: filename,
+			};
+		});
+
+		return models;
 	}
 
 	getVaultAbsolutePath(): string | null {

@@ -1,8 +1,10 @@
 <script lang="ts">
+	import type ChangedFile from "components/ChangedFile";
+
 	interface Props {
-		onSubmit: (arg0: string, arg1: string[]) => void;
+		onSubmit: (arg0: string, arg1: ChangedFile[]) => void;
 		commitMessage: Promise<string>;
-		filesToPush: string[];
+		filesToPush: ChangedFile[];
 	}
 
 	let {

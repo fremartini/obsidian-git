@@ -1,13 +1,14 @@
 <script lang="ts">
 	import Branch from "./Branch/Branch.svelte";
+	import type ChangedFile from "./ChangedFile";
 	import ChangedFiles from "./ChangedFiles/ChangedFiles.svelte";
 	import CommitMessage from "./CommitMessage/CommitMessage.svelte";
 	import PushButton from "./Push/PushButton.svelte";
 
 	interface Props {
 		branch: string;
-		onSubmit: (arg0: string, arg1: string[]) => void;
-		changedFiles: string[]
+		onSubmit: (arg0: string, arg1: ChangedFile[]) => void;
+		changedFiles: ChangedFile[]
 	}
 
 	let {

@@ -1,9 +1,10 @@
 <script lang="ts">
 	import Checkbox from "./Checkbox.svelte";
+	import type ChangedFile from "components/ChangedFile";
 
 	interface Props {
-		changedFiles: string[]
-		filesToPush: string[]
+		changedFiles: ChangedFile[]
+		filesToPush: ChangedFile[]
 	}
 
 	let {
@@ -11,7 +12,7 @@
 		filesToPush,
 	} : Props = $props();
 
-	function onToggled(toggled: boolean, item: string) {
+	function onToggled(toggled: boolean, item: ChangedFile) {
 		if (toggled) {
 			filesToPush.push(item);
 		} else {
@@ -19,8 +20,8 @@
 		}
 	}
 
-	function removeElementFromArray(elem: any, arr: any[]) {
-		const index = arr.indexOf(elem);
+	function removeElementFromArray(elem: ChangedFile, arr: ChangedFile[]) {
+		const index = arr.map(e => e.Filename).indexOf(elem.Filename);
 		if (index > -1) {
 			arr.splice(index, 1);
 		}
@@ -30,7 +31,7 @@
 <div class="container">
 	{#each changedFiles as changedFile} 
 		<div class="entry">
-			{changedFile}
+			{`${changedFile.State} ${changedFile.Displayname}`}
 			<Checkbox onToggled={(toggled) => {
 				onToggled(toggled, changedFile)
 			}}/>
