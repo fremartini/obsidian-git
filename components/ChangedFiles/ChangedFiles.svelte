@@ -1,20 +1,39 @@
 <script lang="ts">
+	import Checkbox from "./Checkbox.svelte";
+
 	interface Props {
 		changedFiles: string[]
+		filesToPush: string[]
 	}
 
-	let yes = $state(true)
-
 	let {
-		changedFiles
+		changedFiles,
+		filesToPush,
 	} : Props = $props();
+
+	function onToggled(toggled: boolean, item: string) {
+		if (toggled) {
+			filesToPush.push(item);
+		} else {
+			removeElementFromArray(item, filesToPush);
+		}
+	}
+
+	function removeElementFromArray(elem: any, arr: any[]) {
+		const index = arr.indexOf(elem);
+		if (index > -1) {
+			arr.splice(index, 1);
+		}
+	}
 </script>
 
 <div class="container">
 	{#each changedFiles as changedFile} 
 		<div class="entry">
 			{changedFile}
-			<input type="checkbox" bind:checked={yes} />
+			<Checkbox onToggled={(toggled) => {
+				onToggled(toggled, changedFile)
+			}}/>
 		</div>
 	{/each}
 </div>

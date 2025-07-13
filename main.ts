@@ -1,7 +1,7 @@
 import { FileSystemAdapter, Notice, Plugin } from "obsidian";
 import { exec as ex } from "child_process";
 import * as util from "util";
-import { PushModal } from "components/push_modal";
+import { PushModal } from "push_modal";
 
 const exec = util.promisify(ex);
 
@@ -49,14 +49,19 @@ export default class ObsidianGitPlugin extends Plugin {
 		const branch = await this.getBranch(vaultPath);
 
 		const props = {
-			onSubmit: async (commitMessage: string) => {
+			onSubmit: async (commitMessage: string, filesToPush: string[]) => {
 				new Notice(`Initiating push with message '${commitMessage}'`);
 
+				for (var changedFile in filesToPush) {
+					new Notice(filesToPush[changedFile]);
+					//await exec(`git add ${changedFile}`);
+				}
+				/*
 				const { stdout } = await exec(
-					`git add * && git commit -m "${commitMessage}" && git push`,
+					`git commit -m "${commitMessage}" && git push`,
 					{ cwd: vaultPath },
 				);
-				new Notice(stdout);
+				new Notice(stdout);*/
 			},
 			changedFiles: changedFiles,
 			branch: branch,
@@ -81,7 +86,6 @@ export default class ObsidianGitPlugin extends Plugin {
 		}
 
 		const changedFiles = stdout
-			.replaceAll('"', "")
 			.replaceAll("??", "A") // files added are showns as ?? for some reason
 			.split("\n");
 
