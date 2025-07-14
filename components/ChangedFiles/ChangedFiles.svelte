@@ -26,12 +26,29 @@
 			arr.splice(index, 1);
 		}
 	}
+
+	function determineColor(file: ChangedFile): string {
+		switch (file.State) {
+			case 'M':
+				return 'yellow'
+			case 'A':
+				return 'green'
+			case 'D':
+				return 'red'
+			default:
+				return 'gray'
+		}
+	}
+
 </script>
 
 <div class="container">
 	{#each changedFiles as changedFile} 
 		<div class="entry">
-			{`${changedFile.State} ${changedFile.Displayname}`}
+			<p>
+				<span style="color:{determineColor(changedFile)}">{changedFile.State}</span>
+				{changedFile.Displayname}
+			</p>
 			<Checkbox onToggled={(toggled) => {
 				onToggled(toggled, changedFile)
 			}}/>
