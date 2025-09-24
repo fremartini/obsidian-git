@@ -9,12 +9,14 @@
 		branch: string;
 		onSubmit: (arg0: string, arg1: ChangedFile[]) => void;
 		changedFiles: ChangedFile[]
+		openDiffView: (arg0: string) => void;
 	}
 
 	let {
 		branch,
 		onSubmit,
-		changedFiles
+		changedFiles,
+		openDiffView,
 	}: Props = $props();
 
 	let commitMessage = $state(getRandomCommitMessage())
@@ -42,7 +44,7 @@
 <div class="container">
 	<CommitMessage {commitMessage} refresh={() => commitMessage = getRandomCommitMessage()}/>
 	<Branch {branch}/>
-	<ChangedFiles {changedFiles} {filesToPush}/>
+	<ChangedFiles {changedFiles} {filesToPush} {openDiffView}/>
 	<PushButton {onSubmit} {commitMessage} {filesToPush}/>
 </div>
 

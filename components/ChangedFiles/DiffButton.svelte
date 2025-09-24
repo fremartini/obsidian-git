@@ -1,6 +1,6 @@
 <script lang="ts">
 	interface Props {
-		onClick?: undefined | (() => Promise<string>);
+		onClick?: undefined | (() => void);
 		size?: number;
 	}
 

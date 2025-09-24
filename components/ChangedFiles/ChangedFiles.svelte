@@ -6,11 +6,13 @@
 	interface Props {
 		changedFiles: ChangedFile[]
 		filesToPush: ChangedFile[]
+		openDiffView: (arg0: String) => void
 	}
 
 	let {
 		changedFiles,
 		filesToPush,
+		openDiffView,
 	} : Props = $props();
 
 	function onToggled(toggled: boolean, item: ChangedFile) {
@@ -51,7 +53,7 @@
 				{changedFile.Displayname}
 			</p>
 			{#if changedFile.State == 'M'}
-				<DiffButton/>
+				<DiffButton onClick={() => openDiffView(changedFile.Filename)}/>
 			{/if}
 			<Checkbox onToggled={(toggled) => {
 				onToggled(toggled, changedFile)
