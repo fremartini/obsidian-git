@@ -72,9 +72,24 @@ export default class ObsidianGitPlugin extends Plugin {
 
 				new DiffViewModal(this.app, props).open();
 			},
+			resetFile: async (file: string) => {
+				await this.checkoutFile(vaultPath, file);
+			},
 		};
 
 		new PushModal(this.app, props).open();
+	}
+
+	async checkoutFile(vaultPath: string, fileName: string) {
+		const { stdout } = await exec(`git checkout ${fileName}`, {
+			cwd: vaultPath,
+		});
+
+		if (stdout == "") {
+			return;
+		}
+
+		new Notice(stdout);
 	}
 
 	async addFiles(files: ChangedFile[], vaultPath: string) {

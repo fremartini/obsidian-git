@@ -9,6 +9,7 @@ interface PushModalProps {
 	changedFiles: ChangedFile[];
 	branch: string;
 	openDiffView: (arg0: string) => void;
+	resetFile: (arg0: string) => void;
 }
 
 export class PushModal extends Modal {
@@ -28,6 +29,7 @@ export class PushModal extends Modal {
 				changedFiles: this.props.changedFiles,
 				branch: this.props.branch,
 				openDiffView: this.props.openDiffView,
+				resetFile: this.props.resetFile,
 				onSubmit: (
 					commitMessage: string,
 					filesToPush: ChangedFile[],
