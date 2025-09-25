@@ -1,6 +1,6 @@
 import { App, Modal } from "obsidian";
 
-import PushModalRoot from "../components/ModalRoot.svelte";
+import PushModalRoot from "../components/Push/PushModalRoot.svelte";
 import { mount, unmount } from "svelte";
 import type ChangedFile from "../components/ChangedFile";
 

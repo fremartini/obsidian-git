@@ -1,9 +1,9 @@
 <script lang="ts">
-	import Branch from "./Branch/Branch.svelte";
-	import type ChangedFile from "./ChangedFile";
-	import ChangedFiles from "./ChangedFiles/ChangedFiles.svelte";
-	import CommitMessage from "./CommitMessage/CommitMessage.svelte";
-	import PushButton from "./Push/PushButton.svelte";
+	import Branch from "../Branch/Branch.svelte";
+	import type ChangedFile from "../ChangedFile";
+	import ChangedFiles from "../ChangedFiles/ChangedFiles.svelte";
+	import CommitMessage from "../CommitMessage/CommitMessage.svelte";
+	import PushButton from "./PushButton.svelte";
 
 	interface Props {
 		branch: string;
