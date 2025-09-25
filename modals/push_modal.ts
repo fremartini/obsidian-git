@@ -1,13 +1,14 @@
 import { App, Modal } from "obsidian";
 
-import PushModalRoot from "./components/ModalRoot.svelte";
+import PushModalRoot from "../components/Push/PushModalRoot.svelte";
 import { mount, unmount } from "svelte";
-import type ChangedFile from "./components/ChangedFile";
+import type ChangedFile from "../components/ChangedFile";
 
 interface PushModalProps {
 	onSubmit: (result: string, filesToPush: ChangedFile[]) => void;
 	changedFiles: ChangedFile[];
 	branch: string;
+	openDiffView: (arg0: string) => void;
 }
 
 export class PushModal extends Modal {
@@ -26,6 +27,7 @@ export class PushModal extends Modal {
 			props: {
 				changedFiles: this.props.changedFiles,
 				branch: this.props.branch,
+				openDiffView: this.props.openDiffView,
 				onSubmit: (
 					commitMessage: string,
 					filesToPush: ChangedFile[],

@@ -1,8 +1,9 @@
-import { FileSystemAdapter, Notice, Plugin } from "obsidian";
+import { FileSystemAdapter, Notice, Plugin, WorkspaceLeaf } from "obsidian";
 import { exec as ex } from "child_process";
 import * as util from "util";
-import { PushModal } from "push_modal";
+import { PushModal } from "modals/push_modal";
 import type ChangedFile from "components/ChangedFile";
+import { DiffViewModal } from "modals/diff_view_modal";
 
 const exec = util.promisify(ex);
 
@@ -62,6 +63,15 @@ export default class ObsidianGitPlugin extends Plugin {
 			},
 			changedFiles: changedFiles,
 			branch: branch,
+			openDiffView: async (file: string) => {
+				const diff = await this.getDiff(vaultPath, file);
+
+				const props = {
+					content: diff,
+				};
+
+				new DiffViewModal(this.app, props).open();
+			},
 		};
 
 		new PushModal(this.app, props).open();
@@ -100,6 +110,25 @@ export default class ObsidianGitPlugin extends Plugin {
 		});
 
 		return stdout;
+	}
+
+	async getDiff(vaultPath: string, filename: string): Promise<string[]> {
+		const { stdout } = await exec(`git diff ${filename}`, {
+			cwd: vaultPath,
+		});
+
+		if (!stdout) {
+			return [];
+		}
+
+		var diffs = stdout
+			.split("\n")
+			.filter((s) => s.startsWith("+") || s.startsWith("-"));
+
+		diffs.shift();
+		diffs.shift();
+
+		return diffs;
 	}
 
 	async getChangedFiles(vaultPath: string): Promise<ChangedFile[]> {

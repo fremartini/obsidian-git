@@ -1,15 +1,18 @@
 <script lang="ts">
 	import Checkbox from "./Checkbox.svelte";
 	import type ChangedFile from "components/ChangedFile";
+	import DiffButton from "./DiffButton.svelte";
 
 	interface Props {
 		changedFiles: ChangedFile[]
 		filesToPush: ChangedFile[]
+		openDiffView: (arg0: String) => void
 	}
 
 	let {
 		changedFiles,
 		filesToPush,
+		openDiffView,
 	} : Props = $props();
 
 	function onToggled(toggled: boolean, item: ChangedFile) {
@@ -49,12 +52,16 @@
 				<span style="color:{determineColor(changedFile)}">{changedFile.State}</span>
 				{changedFile.Displayname}
 			</p>
+			{#if changedFile.State == 'M'}
+				<DiffButton onClick={() => openDiffView(changedFile.Filename)}/>
+			{/if}
 			<Checkbox onToggled={(toggled) => {
 				onToggled(toggled, changedFile)
 			}}/>
 		</div>
 	{/each}
 </div>
+
 
 <style>
 	.container {
