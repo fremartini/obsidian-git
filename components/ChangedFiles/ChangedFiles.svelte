@@ -18,11 +18,13 @@
 		resetFile,
 	} : Props = $props();
 
+	let files = $state(filesToPush)
+
 	function onToggled(toggled: boolean, item: ChangedFile) {
 		if (toggled) {
-			filesToPush.push(item);
+			files.push(item);
 		} else {
-			removeElementFromArray(item, filesToPush);
+			removeElementFromArray(item, files);
 		}
 	}
 
@@ -49,7 +51,7 @@
 </script>
 
 <div class="container">
-	{#each changedFiles as changedFile} 
+	{#each files as changedFile} 
 		<div class="entry">
 			<p>
 				<span style="color:{determineColor(changedFile)}">{changedFile.State}</span>
@@ -59,15 +61,14 @@
 				{#if changedFile.State == 'D' || changedFile.State == 'M'}
 					<ResetButton onClick={() => {
 						resetFile(changedFile.Filename)
-						removeElementFromArray(changedFile, filesToPush) // TODO: fix this
+						removeElementFromArray(changedFile, files)
 					}}/>
 				{/if}
 				{#if changedFile.State == 'M'}
 					<DiffButton onClick={() => openDiffView(changedFile.Filename)}/>
 				{/if}
-				<Checkbox onToggled={(toggled) => {
-					onToggled(toggled, changedFile)
-				}}/>
+				<Checkbox onToggled={(toggled) => onToggled(toggled, changedFile)
+				}/>
 			</div>
 		</div>
 	{/each}
