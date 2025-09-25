@@ -85,6 +85,10 @@ export default class ObsidianGitPlugin extends Plugin {
 			cwd: vaultPath,
 		});
 
+		if (stdout == "") {
+			return;
+		}
+
 		new Notice(stdout);
 	}
 

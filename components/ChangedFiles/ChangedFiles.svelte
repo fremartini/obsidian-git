@@ -55,18 +55,20 @@
 				<span style="color:{determineColor(changedFile)}">{changedFile.State}</span>
 				{changedFile.Displayname}
 			</p>
-			{#if changedFile.State == 'D' || changedFile.State == 'M'}
-				<ResetButton onClick={() => {
-					resetFile(changedFile.Filename)
-					removeElementFromArray(changedFile, filesToPush) // TODO: fix this
+			<div class="entry">
+				{#if changedFile.State == 'D' || changedFile.State == 'M'}
+					<ResetButton onClick={() => {
+						resetFile(changedFile.Filename)
+						removeElementFromArray(changedFile, filesToPush) // TODO: fix this
+					}}/>
+				{/if}
+				{#if changedFile.State == 'M'}
+					<DiffButton onClick={() => openDiffView(changedFile.Filename)}/>
+				{/if}
+				<Checkbox onToggled={(toggled) => {
+					onToggled(toggled, changedFile)
 				}}/>
-			{/if}
-			{#if changedFile.State == 'M'}
-				<DiffButton onClick={() => openDiffView(changedFile.Filename)}/>
-			{/if}
-			<Checkbox onToggled={(toggled) => {
-				onToggled(toggled, changedFile)
-			}}/>
+			</div>
 		</div>
 	{/each}
 </div>
