@@ -2,17 +2,20 @@
 	import Checkbox from "./Checkbox.svelte";
 	import type ChangedFile from "components/ChangedFile";
 	import DiffButton from "./DiffButton.svelte";
+	import ResetButton from "./ResetButton.svelte";
 
 	interface Props {
 		changedFiles: ChangedFile[]
 		filesToPush: ChangedFile[]
 		openDiffView: (arg0: String) => void
+		resetFile: (arg0: String) => void
 	}
 
 	let {
 		changedFiles,
 		filesToPush,
 		openDiffView,
+		resetFile,
 	} : Props = $props();
 
 	function onToggled(toggled: boolean, item: ChangedFile) {
@@ -52,6 +55,12 @@
 				<span style="color:{determineColor(changedFile)}">{changedFile.State}</span>
 				{changedFile.Displayname}
 			</p>
+			{#if changedFile.State == 'D' || changedFile.State == 'M'}
+				<ResetButton onClick={() => {
+					resetFile(changedFile.Filename)
+					removeElementFromArray(changedFile, filesToPush) // TODO: fix this
+				}}/>
+			{/if}
 			{#if changedFile.State == 'M'}
 				<DiffButton onClick={() => openDiffView(changedFile.Filename)}/>
 			{/if}
